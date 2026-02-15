@@ -33,7 +33,6 @@ const Dashboard = () => {
         });
     
         if (!response.ok) {
-          // If the token is expired/invalid, you might want to logout the user
           if (response.status === 401) logout(); 
           const message = await response.text();
           throw new Error(message || "Unable to load profile.");

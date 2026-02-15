@@ -7,9 +7,9 @@ const LandingPage = () => {
   return (
     <div className="landing-page">
       <header className="landing-content">
-        <h1 className="landing-title">Welcome to Our App</h1>
+        <h1 className="landing-title">Welcome to my Testing App</h1>
         <p className="landing-subtitle">
-          This is a simple introduction to our platform. Join us today to get started.
+          Join us today to test my app if its working or not.
         </p>
         
         <div className="landing-actions">
