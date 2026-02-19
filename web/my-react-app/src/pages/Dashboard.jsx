@@ -12,7 +12,6 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
   useEffect(() => {
     const token = getToken();
@@ -23,7 +22,7 @@ const Dashboard = () => {
 
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`${API_BASE}/api/user/me`, {
+        const response = await fetch(`http://localhost:8080/api/user/me`, {
           method: "GET",
           headers: { ...getAuthHeader(), "Content-Type": "application/json" },
         });
