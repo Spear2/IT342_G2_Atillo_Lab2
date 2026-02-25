@@ -1,60 +1,57 @@
-package com.example.userauth.ui.screens.dashboard
+package com.example.userauth.ui.screens.profile
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.userauth.R
+import com.example.userauth.data.repository.UserRepository
+import com.example.userauth.security.AuthManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [ProfileFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ProfileFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var authManager: AuthManager
+    private lateinit var userRepository: UserRepository
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
+    // 1. Inflate the XML layout you showed me earlier
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ProfileFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ProfileFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    // 2. Once the screen is built, fetch the data
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Initialize our tools using the Activity's context
+        authManager = AuthManager(requireContext())
+        userRepository = UserRepository(authManager)
+
+        val tvProfileEmail = view.findViewById<TextView>(R.id.tvProfileEmail)
+
+        // Show a loading state temporarily
+        tvProfileEmail.text = "Loading..."
+
+        // 3. Fetch the data from Spring Boot in the background
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val user = userRepository.getUserProfile()
+
+            // 4. Update the UI on the main thread
+            withContext(Dispatchers.Main) {
+                if (user != null) {
+                    // Success! Display the email from the database
+                    tvProfileEmail.text = user.email
+                } else {
+                    tvProfileEmail.text = "Error loading profile"
+                    Toast.makeText(requireContext(), "Failed to fetch profile. Token might be expired.", Toast.LENGTH_SHORT).show()
                 }
             }
+        }
     }
 }
